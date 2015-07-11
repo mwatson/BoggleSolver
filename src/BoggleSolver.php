@@ -16,7 +16,7 @@ class BoggleSolver
     public static $minLen = 3;
     public static $maxLen = 11;
 
-    public static $dictFile = "../resources/dict.txt";
+    public static $dictFile = "/../resources/dict.txt";
 
     public static $dirs = array(
         'n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw',
@@ -24,6 +24,7 @@ class BoggleSolver
 
     public function __construct()
     {
+        static::$dictFile = __DIR__ . static::$dictFile;
     }
 
     public function getWords()
