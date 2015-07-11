@@ -24,12 +24,11 @@ class BoggleSolver
 
     public function __construct()
     {
-        static::$dictFile = __DIR__ . static::$dictFile;
     }
 
     public function getWords()
     {
-        return explode("\r\n", file_get_contents(static::$dictFile));
+        return explode("\r\n", file_get_contents(__DIR__ . static::$dictFile));
     }
 
     public function loadDict()
