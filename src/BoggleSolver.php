@@ -12,7 +12,7 @@ class BoggleSolver
 
     public $lastSolveTime;
 
-    // for now, 3 - 12 letter words only
+    // for now, 3 - 11 letter words only
     public static $minLen = 3;
     public static $maxLen = 11;
 
@@ -28,7 +28,7 @@ class BoggleSolver
 
     public function getWords()
     {
-        return explode("\r\n", file_get_contents(__DIR__ . static::$dictFile));
+        return explode("\r\n", static::getDictFileContents());
     }
 
     public function loadDict()
@@ -65,6 +65,10 @@ class BoggleSolver
                 }
 
                 $letter = $word[$i];
+                if ($letter == 'Q' && $word[$i + 1] == 'U') {
+                    $letter = 'Qu';
+                    $i++;
+                }
                 if (!isset($ptr[$letter])) {
                     $ptr[$letter] = array();
                 }
@@ -78,9 +82,13 @@ class BoggleSolver
     public function loadBoard($board)
     {
         // the board can be any string, non alpha chars will be stripped
-        $board = preg_replace("|[^A-Za-z]|", '', $board);
+        $board = strtoupper(preg_replace("|[^A-Za-z]|", '', $board));
 
         $this->size = 0;
+
+        if (strpos($board, 'QU') !== false) {
+            $board = str_replace('QU', 'Q', $board);
+        }
 
         // currently only 3x3 and 4x4 are suported
         switch (strlen($board)) {
@@ -92,11 +100,11 @@ class BoggleSolver
                 break;
             default:
                 throw new BoggleException("Unknown board size of " . strlen($board));
-
         }
 
         for ($i = 0; $i < strlen($board); $i++) {
-            $this->board[] = new BoggleTile($board[$i], $i);
+            $letter = $board[$i] == 'Q' ? 'Qu' : $board[$i];
+            $this->board[] = new BoggleTile($letter, $i);
             $this->boardLookup[$board[$i]] = true;
         }
 
@@ -156,30 +164,6 @@ class BoggleSolver
         }
 
         return $board;
-    }
-
-    public function traverseBoard($callback)
-    {
-        $ptr = &$this->board[0];
-        $dir = "e";
-
-        while (1) {
-
-            $callback($ptr);
-
-            if ($ptr->$dir === null && $ptr->s === null) {
-                break;
-            }
-
-            if ($ptr->$dir !== null) {
-                $ptr = &$ptr->$dir;
-            } else if ($ptr->s !== null) {
-                $ptr = &$ptr->s;
-                $dir = $dir == "e" ? "w" : "e";
-            } else {
-                break;
-            }
-        }
     }
 
     public function findWords()
@@ -278,5 +262,10 @@ class BoggleSolver
         }
 
         return $words;
+    }
+
+    public static function getDictFileContents()
+    {
+        return file_get_contents(__DIR__ . static::$dictFile);
     }
 }
