@@ -28,7 +28,7 @@ class BoggleSolver
 
     public function getWords()
     {
-        return explode("\r\n", static::getDictFileContents());
+        return explode("\r\n", $this->getDictFileContents());
     }
 
     public function loadDict()
@@ -195,8 +195,6 @@ class BoggleSolver
             } else if ($ptr->s !== null) {
                 $ptr = &$ptr->s;
                 $dir = $dir == "e" ? "w" : "e";
-            } else {
-                break;
             }
         }
 
@@ -205,12 +203,8 @@ class BoggleSolver
         return array_keys($words);
     }
 
-    public function findWordsFromOneTile($boardPtr = null, $dictPtr = null, $words = array())
+    public function findWordsFromOneTile($boardPtr, $dictPtr = null, $words = array())
     {
-        if ($boardPtr === null) {
-            $boardPtr = &$this->board[0];
-        }
-
         if ($dictPtr === null) {
             $dictPtr = &$this->dict;
         }
@@ -240,8 +234,8 @@ class BoggleSolver
             if (strlen($dir) == 2) {
                 $d1 = $dir[0];
                 $d2 = $dir[1];
-                if ($boardPtr->$d1->pathTo == $boardPtr->$d2->id && 
-                    $boardPtr->$d2->pathTo == $boardPtr->$d2->id
+                if ($boardPtr->$d1->pathTo == $boardPtr->$d2->id || 
+                    $boardPtr->$d2->pathTo == $boardPtr->$d1->id
                 ) {
                     continue;
                 }
@@ -264,8 +258,10 @@ class BoggleSolver
         return $words;
     }
 
-    public static function getDictFileContents()
+    // @codeCoverageIgnoreStart
+    public function getDictFileContents()
     {
         return file_get_contents(__DIR__ . static::$dictFile);
     }
+    // @codeCoverageIgnoreEnd
 }

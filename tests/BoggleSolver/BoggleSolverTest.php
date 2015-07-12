@@ -4,19 +4,19 @@ namespace BoggleSolver;
 
 class BoggleSolverTest extends \PHPUnit_Framework_TestCase
 {
-    public $lessWords = array(
-        "ABCD", "ABC", "ABBA", "ABABA", "ABQU", "XYZ", "ABBBBBBBBBBBBBBBB", "AB"
-    );
-
     public function testLoadDictBuildsDictionary()
     { 
         $solverMock = $this->getMockBuilder('\BoggleSolver\BoggleSolver')
                            ->setMethods(array('getWords'))
                            ->getMock();
                            
+        $lessWords = array(
+            "ABCD", "ABC", "ABBA", "ABABA", "ABQU", "XYZ", "ABBBBBBBBBBBBBBBB", "AB"
+        );
+                           
         $solverMock->expects($this->once())
                    ->method('getWords')
-                   ->will($this->returnValue($this->lessWords));
+                   ->will($this->returnValue($lessWords));
                    
         $solverMock->boardLookup = array('A' => 1);
         $solverMock->size = 3;
@@ -131,21 +131,38 @@ class BoggleSolverTest extends \PHPUnit_Framework_TestCase
                            ->setMethods(array('getWords'))
                            ->getMock();
                            
+        $words = array('XXX', 'ALL', 'XXXXLA');
+                           
         $solverMock->expects($this->once())
                    ->method('getWords')
-                   ->will($this->returnValue($this->lessWords));
+                   ->will($this->returnValue($words));
                    
         $solverMock->boardLookup = array('A' => 1);
         $solverMock->size = 3;
 
-        $solverMock->loadBoard("ABCABDABA");
+        $solverMock->loadBoard("X X A L L X L L X");
         
         $result = $solverMock->findWords();
         
         $expected = array(
-            "ABC", "ABCD", "ABBA", "ABABA",
+            'XXX', 'ALL'
         );
         
         $this->assertEquals($expected, $result);
+    }
+    
+    public function testGetWords()
+    {
+        $solverMock = $this->getMockBuilder('\BoggleSolver\BoggleSolver')
+                           ->setMethods(array('getDictFileContents'))
+                           ->getMock();
+                           
+        $solverMock->expects($this->once())
+                   ->method('getDictFileContents')
+                   ->will($this->returnValue("XYZ\r\nABC\r\nQRS"));
+               
+        $result = $solverMock->getWords();
+        
+        $this->assertEquals(array('XYZ', 'ABC', 'QRS'), $result);
     }
 }
