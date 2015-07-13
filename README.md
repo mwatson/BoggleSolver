@@ -1,7 +1,7 @@
 BoggleSolver
 ----
 
-This is a PHP class that solves Boggle. I made it for fun.
+This is a PHP class that solves Boggle boards. I made it for fun.
 
 ## Installing
 
@@ -31,7 +31,7 @@ try {
         "A M T O".
         "L N S T".
         "L X T G".
-        "E T A N";
+        "E T A N"
     );
 } catch (\BoggleSolver\BoggleException $e) {
     die("exiting on error: " . $e->getMessage());
@@ -40,6 +40,27 @@ try {
 // retrieve the list of words
 $words = $boggle->findWords();
 ````
+
+`BoggleSolver::findWords()` will return an array where every valid word is the key 
+and the value is one or more arrays describing the path you take on the board to 
+replicate finding this word.
+
+Example (in formatted JSON, for clarity):
+
+```json
+{
+    "ANTS":[
+        [0,5,2,6],
+        [0,5,10,6],
+        [14,15,10,6]
+    ],
+    "ANTA":[
+        [0,5,10,14]
+    ]    
+}
+```
+
+The numbers in the array represent each tile ID.
 
 See the files in the `examples` directory for more info.
 
@@ -59,4 +80,5 @@ will delete the coverage directory.
 
 &copy; Mike Watson
 
-Released under the [MIT license](http://opensource.org/licenses/MIT). See the `LICENSE` file.
+Released under the [MIT license](http://opensource.org/licenses/MIT). See the 
+`LICENSE` file.

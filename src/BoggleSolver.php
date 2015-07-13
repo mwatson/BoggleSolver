@@ -10,6 +10,7 @@ class BoggleSolver
     public $board = array();
     public $boardLookup = array();
 
+    public $lastDictTime;
     public $lastSolveTime;
 
     // for now, 3 - 11 letter words only
@@ -22,8 +23,12 @@ class BoggleSolver
         'n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw',
     );
 
-    public function __construct()
+    // $dictFile should be relative to this file
+    public function __construct($dictFile = "")
     {
+        if ($dictFile) {
+            static::$dictFile = $dictFile;
+        }
     }
 
     public function getWords()
@@ -33,11 +38,13 @@ class BoggleSolver
 
     public function loadDict()
     {
+        $start = microtime(true);
+
         $this->dict = array();
         $words = $this->getWords();
 
-        // Create a boggle friendly lookup table. This is basically a half-assed 
-        // search tree so we know when we can stop checking for words on the 
+        // Create a boggle friendly lookup table. This is basically a half-assed
+        // search tree so we know when we can stop checking for words on the
         // current path.
         foreach ($words as $word) {
 
@@ -46,26 +53,24 @@ class BoggleSolver
                 continue;
             }
 
+            $wordLen = strlen($word);
+
             // max length is mostly here for memory reasons
-            if (strlen($word) < static::$minLen) {
+            if ($wordLen < static::$minLen) {
                 continue;
             }
-            if (strlen($word) > static::$maxLen || strlen($word) > $this->size * $this->size) {
+            if ($wordLen > static::$maxLen) {
+                continue;
+            }
+            if ($wordLen > $this->size * $this->size) {
                 continue;
             }
 
             $ptr = &$this->dict;
 
-            for ($i = 0; $i <= static::$maxLen; $i++) {
-                if ($i == strlen($word)) {
-                    $ptr[] = $word;
-                    continue;
-                } else if ($i > strlen($word)) {
-                    continue;
-                }
-
+            for ($i = 0; $i < $wordLen; $i++) {
                 $letter = $word[$i];
-                if ($letter == 'Q' && $word[$i + 1] == 'U') {
+                if ($letter == 'Q' && isset($words[$i + 1]) && $word[$i + 1] == 'U') {
                     $letter = 'Qu';
                     $i++;
                 }
@@ -74,9 +79,12 @@ class BoggleSolver
                 }
                 $ptr = &$ptr[$letter];
             }
+            $ptr[] = $word;
         }
 
         unset($words);
+
+        $this->lastDictTime = microtime(true) - $start;
     }
 
     public function loadBoard($board)
@@ -157,6 +165,9 @@ class BoggleSolver
             $colPtr = $rowPtr;
             while ($colPtr !== null) {
                 $board .= $colPtr->letter;
+                if ($colPtr->letter != "Qu") {
+                    $board .= " ";
+                }
                 $colPtr = &$colPtr->e;
             }
             $board .= $lineEnd;
@@ -181,7 +192,7 @@ class BoggleSolver
 
             $words = array_merge(
                 $words,
-                $this->findWordsFromOneTile($ptr, null)
+                $this->findWordsFromOneTile($ptr, null, $words)
             );
 
             $ptr->visited = false;
@@ -200,10 +211,10 @@ class BoggleSolver
 
         $this->lastSolveTime = microtime(true) - $start;
 
-        return array_keys($words);
+        return $words;
     }
 
-    public function findWordsFromOneTile($boardPtr, $dictPtr = null, $words = array())
+    public function findWordsFromOneTile($boardPtr, $dictPtr = null, &$words = array(), $path = array())
     {
         if ($dictPtr === null) {
             $dictPtr = &$this->dict;
@@ -215,10 +226,15 @@ class BoggleSolver
             return array();
         }
 
+        $path[] = $boardPtr->id;
+
         $dictPtr = &$dictPtr[$curLetter];
 
         if (isset($dictPtr[0])) {
-            $words[$dictPtr[0]] = 1;
+            if (!isset($words[$dictPtr[0]])) {
+                $words[$dictPtr[0]] = array();
+            }
+            $words[$dictPtr[0]][] = $path;
         }
 
         foreach (static::$dirs as $dir) {
@@ -229,12 +245,12 @@ class BoggleSolver
                 continue;
             }
 
-            // if we're going diagonal, make sure the two adjacent tiles 
+            // if we're going diagonal, make sure the two adjacent tiles
             // haven't already been pathed to each other
             if (strlen($dir) == 2) {
-                $d1 = $dir[0];
-                $d2 = $dir[1];
-                if ($boardPtr->$d1->pathTo == $boardPtr->$d2->id || 
+                $d1 = substr($dir, 0, 1);
+                $d2 = substr($dir, 1, 1);
+                if ($boardPtr->$d1->pathTo == $boardPtr->$d2->id ||
                     $boardPtr->$d2->pathTo == $boardPtr->$d1->id
                 ) {
                     continue;
@@ -246,7 +262,7 @@ class BoggleSolver
             $boardPtr->$dir->pathTo = $boardPtr->id;
             $boardPtr->pathTo = $boardPtr->$dir->id;
 
-            $newWords = $this->findWordsFromOneTile($boardPtr->$dir, $dictPtr, $words);
+            $newWords = $this->findWordsFromOneTile($boardPtr->$dir, $dictPtr, $words, $path);
             $words = array_merge($words, $newWords);
 
             // unset those flags since we're picking a new path after this

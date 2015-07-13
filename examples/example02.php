@@ -22,13 +22,12 @@ try {
 
 $words = $boggle->findWords();
 
-
 echo "Boggle Board:\n\n";
 echo $boggle->displayBoard();
 
 echo "\n";
 
-foreach ($words as $word) {
+foreach ($words as $word => $paths) {
     echo $word . "\n";
 }
 

@@ -38,11 +38,12 @@ echo "\n";
 
 echo "Found {$numWords} words:\n\n";
 
-foreach ($words as $word) {
-    echo $word . "\n";
+foreach ($words as $word => $paths) {
+    echo "{$word}\n";
 }
 
 echo "\n";
 
 // lastSolveTime will hold the time it took to solve
-echo "Solved in {$boggle->lastSolveTime} seconds\n";
+echo "Dictionary built in {$boggle->lastDictTime} seconds\n";
+echo "Board solved in {$boggle->lastSolveTime} seconds\n";
