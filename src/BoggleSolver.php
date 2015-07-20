@@ -70,9 +70,11 @@ class BoggleSolver
 
             for ($i = 0; $i < $wordLen; $i++) {
                 $letter = $word[$i];
-                if ($letter == 'Q' && isset($words[$i + 1]) && $word[$i + 1] == 'U') {
-                    $letter = 'Qu';
-                    $i++;
+                if ($letter == 'Q' && isset($words[$i + 1])) {
+                    if ($word[$i + 1] == 'U') {
+                        $letter = 'Qu';
+                        $i++;
+                    }
                 }
                 if (!isset($ptr[$letter])) {
                     $ptr[$letter] = array();
