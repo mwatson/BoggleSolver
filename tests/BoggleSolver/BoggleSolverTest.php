@@ -53,6 +53,11 @@ class BoggleSolverTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals($expectedDict, $solverMock->dict);
+
+        // lazy
+        $solverMock->unloadDict();
+
+        $this->assertEquals(array(), $solverMock->dict);
     }
 
     public function testLoadBoardLoadsBoard()

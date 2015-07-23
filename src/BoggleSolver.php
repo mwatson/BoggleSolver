@@ -276,6 +276,11 @@ class BoggleSolver
         return $words;
     }
 
+    public function unloadDict()
+    {
+        $this->dict = array();
+    }
+
     // @codeCoverageIgnoreStart
     public function getDictFileContents()
     {
