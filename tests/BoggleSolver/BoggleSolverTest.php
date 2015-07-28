@@ -146,20 +146,18 @@ class BoggleSolverTest extends \PHPUnit_Framework_TestCase
         $solverMock->boardLookup = array('A' => 1);
         $solverMock->size = 3;
 
-        $solverMock->loadBoard("X X A L L X L L X");
+        $solverMock->loadBoard("X X A L L X L L R");
 
         // X X A
         // L L X
-        // L L X
+        // L L R
 
         $result = $solverMock->findWords();
 
         $expected = array(
             'XXX' => array(
                 array(0, 1, 5),
-                array(1, 5, 8),
                 array(5, 1, 0),
-                array(8, 5, 1),
             ),
             'ALL' => array(
                 array(2, 4, 7),
