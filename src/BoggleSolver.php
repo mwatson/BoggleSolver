@@ -70,7 +70,7 @@ class BoggleSolver
 
             for ($i = 0; $i < $wordLen; $i++) {
                 $letter = $word[$i];
-                if ($letter == 'Q' && isset($words[$i + 1])) {
+                if ($letter == 'Q' && isset($word[$i + 1])) {
                     if ($word[$i + 1] == 'U') {
                         $letter = 'Qu';
                         $i++;
@@ -247,18 +247,6 @@ class BoggleSolver
                 continue;
             }
 
-            // if we're going diagonal, make sure the two adjacent tiles
-            // haven't already been pathed to each other
-            if (strlen($dir) == 2) {
-                $d1 = substr($dir, 0, 1);
-                $d2 = substr($dir, 1, 1);
-                if ($boardPtr->$d1->pathTo == $boardPtr->$d2->id ||
-                    $boardPtr->$d2->pathTo == $boardPtr->$d1->id
-                ) {
-                    continue;
-                }
-            }
-
             // set up some flags so we don't backtrack to this tile
             $boardPtr->$dir->visited = true;
             $boardPtr->$dir->pathTo = $boardPtr->id;
@@ -278,6 +266,7 @@ class BoggleSolver
 
     public function unloadDict()
     {
+        unset($this->dict);
         $this->dict = array();
     }
 
