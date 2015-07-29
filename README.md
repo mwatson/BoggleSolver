@@ -1,6 +1,8 @@
 BoggleSolver
 ----
 
+[![Build Status](https://travis-ci.org/mwatson/BoggleSolver.svg?branch=master)](https://travis-ci.org/mwatson/BoggleSolver)
+
 This is a PHP class that solves Boggle boards. I made it for fun.
 
 ## Installing
