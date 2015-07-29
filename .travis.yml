@@ -1,6 +1,15 @@
 language: php
+
 php:
-- 5.5
 - 5.4
+- 5.5
+- 5.6
 - hhvm
-script: make tests
+
+before_script:
+    - composer self-update
+    - composer install --no-interaction --dev
+    - make clean
+
+script:
+    - make tests
