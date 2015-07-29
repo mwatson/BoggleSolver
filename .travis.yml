@@ -8,8 +8,7 @@ php:
 
 before_script:
     - composer self-update
-    - composer install --no-interaction --dev
-    - make clean
+    - composer install --no-interaction
 
 script:
-    - make tests
+    - vendor/phpunit/phpunit/phpunit tests
