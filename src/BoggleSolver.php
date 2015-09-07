@@ -108,6 +108,12 @@ class BoggleSolver
             case 16:
                 $this->size = 4;
                 break;
+            case 25:
+                $this->size = 5;
+                break;
+            case 36:
+                $this->size = 6;
+                break;
             default:
                 throw new BoggleException("Unknown board size of " . strlen($board));
         }
